@@ -4,7 +4,7 @@ services:
   # -------------------------------------------------------------
   app:
     image: php:8.3-fpm
-    container_name: laravel_app
+    container_name: ecommerce_laravel_app
     restart: unless-stopped
     working_dir: /var/www/html
     volumes:
@@ -32,7 +32,7 @@ services:
   # -------------------------------------------------------------
   nginx:
     image: nginx:alpine
-    container_name: laravel_nginx
+    container_name: ecommerce_laravel_nginx
     restart: unless-stopped
     ports:
       - "8000:80"
@@ -49,7 +49,7 @@ services:
   # -------------------------------------------------------------
   db:
     image: postgres:15-alpine
-    container_name: laravel_db
+    container_name: ecommerce_laravel_db
     restart: unless-stopped
     tty: true
     ports:
@@ -64,11 +64,11 @@ services:
       - ecommerce_network
 
   # -------------------------------------------------------------
-  # Frontend: Next.js (Node.js 22 LTS)
+  # Frontend: Next.js (Node.js 22 LTS - Producción)
   # -------------------------------------------------------------
   nextjs:
     image: node:22-alpine
-    container_name: nextjs_dev
+    container_name: ecommerce_nextjs_prod
     restart: unless-stopped
     working_dir: /app
     ports:
@@ -78,10 +78,10 @@ services:
       - /app/node_modules
       - /app/.next
     environment:
-      - NODE_ENV=development
-      - WATCHPACK_POLLING=true
+      - NODE_ENV=production
+      - BASE_URL=http://nginx/api
       - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8000/api}
-    command: sh -c "npm install && npm run dev"
+    command: sh -c "npm install --include=dev && npm run build && npm run start"
     stdin_open: true
     tty: true
     networks:
